@@ -1,0 +1,32 @@
+Sub Statistiques_Equipe()
+'On chosisit l'équipe à analyser et on se place sur la bonne feuille
+    Dim Nom_equipe As String
+    Nom_equipe = InputBox("Entrez le nom de l'équipe à analyser")
+    Worksheets("LeagueTableExport").Activate
+    
+' On se place sur la bonne ligne pour sortir les datas
+    Dim i As Double
+    i = 0
+    While Cells(1 + i, 2) <> Nom_equipe
+        i = i + 1
+    Wend
+    
+' On stocke nos nos données dans les variables
+    Dim Win As Double, Draw As Double, Loss As Double, Match_played As Double
+    Win = Cells(1 + i, 5)
+    Draw = Cells(1 + i, 6)
+    Loss = Cells(1 + i, 7)
+    Match_played = Cells(1 + i, 4)
+    
+    Dim GF As Double, GA As Double
+    GF = Cells(1 + i, 8)
+    GA = Cells(1 + i, 9)
+    
+'On calcule espérance
+    Dim Esperance_win As Double
+    Esperance_win = Win / Match_played * 100
+    
+'On montre le résultat
+    MsgBox (Esperance_win & "%")
+    
+End Sub
