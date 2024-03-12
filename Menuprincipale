@@ -1,0 +1,24 @@
+Sub CreerMenuPrincipal()
+    Dim MenuBar As Object
+    Dim Menu As Object
+    Dim SubMenu As Object
+    Dim i As Integer
+    
+
+   ' Créer un nouveau menu principal
+    Set MenuBar = Application.CommandBars("Worksheet Menu Bar")
+    Set Menu = MenuBar.Controls.Add(Type:=msoControlPopup, Before:=1)
+    Menu.Caption = "Navigation"
+    
+    ' Ajouter des éléments de sous-menu pour chaque feuille du classeur
+    For i = 1 To ThisWorkbook.Sheets.Count
+        Set SubMenu = Menu.Controls.Add(Type:=msoControlButton)
+        SubMenu.Caption = ThisWorkbook.Sheets(i).Name
+        SubMenu.OnAction = "'GoToSheet """ & ThisWorkbook.Sheets(i).Name & """'"
+    Next i
+End Sub
+
+Sub GoToSheet(SheetName As String)
+    ' Naviguer vers la feuille spécifiée
+    ThisWorkbook.Sheets(SheetName).Activate
+End Sub
