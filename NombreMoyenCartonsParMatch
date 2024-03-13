@@ -1,0 +1,34 @@
+Sub CalculerNombreMoyenCartonsParMatch()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    
+    ' Spécifiez la feuille de calcul contenant les données
+    Set ws = ThisWorkbook.Sheets("PlayerStatsExport")
+    
+    ' Trouver la dernière ligne avec des données
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' Initialiser les compteurs
+    Dim totalCartons As Long
+    Dim totalMatchs As Long
+    
+    ' Parcourir les lignes du tableau
+    For i = 2 To lastRow ' Commence à la ligne 2 pour exclure l'en-tête
+        ' Incrémenter le total des cartons et le total des matchs
+        totalCartons = totalCartons + ws.Cells(i, "P").Value ' Colonne "P" contient le nombre de cartons jaunes
+        totalCartons = totalCartons + ws.Cells(i, "Q").Value ' Colonne "Q" contient le nombre de cartons rouges
+        totalMatchs = totalMatchs + ws.Cells(i, "K").Value ' Colonne "K" contient le nombre de matchs joués
+    Next i
+    
+    ' Calculer le nombre moyen de cartons par match
+    Dim moyenneCartonsParMatch As Double
+    If totalMatchs > 0 Then
+        moyenneCartonsParMatch = totalCartons / totalMatchs
+    Else
+        moyenneCartonsParMatch = 0 ' Éviter la division par zéro
+    End If
+    
+    ' Afficher la moyenne dans la fenêtre de message
+    MsgBox "Le nombre moyen de cartons reçus par match est : " & moyenneCartonsParMatch
+End Sub
