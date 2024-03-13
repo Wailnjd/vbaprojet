@@ -1,0 +1,28 @@
+
+Private Sub Equipe1_Change()
+    ' Mettre à jour Equipe2 en excluant la sélection de Equipe1
+    MiseAJourComboBox Equipe2, Equipe1.Value
+End Sub
+
+Private Sub Equipe2_Change()
+    ' Mettre à jour Equipe1 en excluant la sélection de Equipe2
+    MiseAJourComboBox Equipe1, Equipe2.Value
+End Sub
+
+' La subroutine pour mettre à jour une ComboBox en excluant une valeur spécifique
+Private Sub MiseAJourComboBox(ByVal ComboBoxAMettreAJour As ComboBox, ByVal ValeurAExclure As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    ComboBoxAMettreAJour.Clear ' Efface les éléments actuels
+    
+    Dim i As Long
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    ' Remplir la ComboBox en excluant la valeur spécifiée
+    For i = 2 To derniereLigne
+        If ws.Cells(i, 2).Value <> ValeurAExclure Then
+            ComboBoxAMettreAJour.AddItem ws.Cells(i, 2).Value
+        End If
+    Next i
+End Sub
