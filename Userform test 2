@@ -1,0 +1,39 @@
+'Permet de quitter le Userform
+Private Sub Valider_Click()
+    Unload Me
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    Dim i As Long
+    For i = 1 To derniereLigne
+        Equipe1.AddItem ws.Cells(i, 2).Value
+        Equipe2.AddItem ws.Cells(i, 2).Value
+    Next i
+End Sub
+
+Private Sub Equipe1_Change()
+    ' Actualiser la deuxième ComboBox
+    MiseAJourComboBox Equipe1, Equipe2
+End Sub
+
+Private Sub Equipe2_Change()
+    ' Actualiser la première ComboBox
+    MiseAJourComboBox Equipe1, Equipe2
+End Sub
+
+Private Sub MiseAJourComboBox(ByVal ComboBoxAMettreAJour As ComboBox, ByVal ComboBoxReference As ComboBox)
+    Dim i As Long
+    ComboBoxAMettreAJour.Clear ' Efface les éléments actuels
+    
+    ' Remplir la ComboBox en excluant l'équipe sélectionnée dans l'autre ComboBox
+    For i = 1 To ThisWorkbook.Sheets("Équipes").Cells(ThisWorkbook.Sheets("LeagueTableExport").Rows.Count, "B").End(xlUp).Row
+        If ThisWorkbook.Sheets("LeagueTableExport").Cells(i, 1).Value <> ComboBoxReference.Value Then
+            ComboBoxAMettreAJour.AddItem ThisWorkbook.Sheets("LeagueTableExport").Cells(i, 1).Value
+        End If
+    Next i
+End Sub
