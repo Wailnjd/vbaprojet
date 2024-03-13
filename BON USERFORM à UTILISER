@@ -1,0 +1,29 @@
+
+'Permet de quitter le Userform
+Private Sub Valider_Click()
+    'stockage des équipes choisis
+    Dim ChoixEquipe1 As String
+    Dim ChoixEquipe2 As String
+    
+    ChoixEquipe1 = Equipe1.Value
+    ChoixEquipe2 = Equipe2.Value
+    
+    Unload Me
+    
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+   
+    ' Initialisation des ComboBox avec la liste des équipes
+    Dim i As Long
+    For i = 2 To derniereLigne
+        Me.Equipe1.AddItem ws.Cells(i, 2).Value
+        Me.Equipe2.AddItem ws.Cells(i, 2).Value
+    Next i
+    Equipe1.ListIndex = 0
+    Equipe2.ListIndex = 1
+End Sub
