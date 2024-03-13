@@ -1,0 +1,51 @@
+
+
+'Permet de quitter le Userform
+Sub Valider_Click()
+    Unload Me
+End Sub
+' Déclaration des contrôles ComboBox au niveau du module pour l'exemple.
+' Assurez-vous que vos ComboBox dans le UserForm sont nommés Equipe1 et Equipe2 respectivement.
+
+Private Sub UserForm_Initialize()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    ' Initialisation des ComboBox avec la liste des équipes
+    Dim i As Long
+    For i = 2 To derniereLigne
+        Equipe1.AddItem ws.Cells(i, 2).Value
+        Equipe2.AddItem ws.Cells(i, 2).Value
+    Next i
+End Sub
+
+Private Sub Equipe1_Change()
+    ' Mettre à jour Equipe2 en excluant la sélection de Equipe1
+    MiseAJourComboBox Equipe2, Equipe1.Value
+End Sub
+
+Private Sub Equipe2_Change()
+    ' Mettre à jour Equipe1 en excluant la sélection de Equipe2
+    MiseAJourComboBox Equipe1, Equipe2.Value
+End Sub
+
+' La subroutine pour mettre à jour une ComboBox en excluant une valeur spécifique
+Private Sub MiseAJourComboBox(ByVal ComboBoxAMettreAJour As ComboBox, ByVal ValeurAExclure As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    ComboBoxAMettreAJour.Clear ' Efface les éléments actuels
+    
+    Dim i As Long
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    ' Remplir la ComboBox en excluant la valeur spécifiée
+    For i = 2 To derniereLigne
+        If ws.Cells(i, 2).Value <> ValeurAExclure Then
+            ComboBoxAMettreAJour.AddItem ws.Cells(i, 2).Value
+        End If
+    Next i
+End Sub
+
