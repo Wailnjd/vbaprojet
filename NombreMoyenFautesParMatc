@@ -1,0 +1,33 @@
+Sub CalculerNombreMoyenFautesParMatch()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    
+    ' Spécifiez la feuille de calcul contenant les données
+    Set ws = ThisWorkbook.Sheets("PlayerStatsExport")
+    
+    ' Trouver la dernière ligne avec des données
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' Initialiser les compteurs
+    Dim totalFautes As Long
+    Dim totalMatchs As Long
+    
+    ' Parcourir les lignes du tableau
+    For i = 2 To lastRow ' Commence à la ligne 2 pour exclure l'en-tête
+        ' Incrémenter le total des fautes et le total des matchs
+        totalFautes = totalFautes + ws.Cells(i, "J").Value ' Colonne "J" contient le nombre de fautes
+        totalMatchs = totalMatchs + ws.Cells(i, "K").Value ' Colonne "K" contient le nombre de matchs joués
+    Next i
+    
+    ' Calculer le nombre moyen de fautes par match
+    Dim moyenneFautesParMatch As Double
+    If totalMatchs > 0 Then
+        moyenneFautesParMatch = totalFautes / totalMatchs
+    Else
+        moyenneFautesParMatch = 0 ' Éviter la division par zéro
+    End If
+    
+    ' Afficher la moyenne dans la fenêtre de message
+    MsgBox "Le nombre moyen de fautes commises par match est : " & moyenneFautesParMatch
+End Sub
