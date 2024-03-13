@@ -1,0 +1,30 @@
+Sub CalculerDifferentielButs()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    
+    ' Spécifiez la feuille de calcul contenant les données
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    
+    ' Trouver la dernière ligne avec des données
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' Parcourir les lignes du tableau
+    For i = 2 To lastRow ' Commence à la ligne 2 pour exclure l'en-tête
+        ' Calculer le différentiel de buts pour chaque équipe
+        Dim goalsFor As Long
+        Dim goalsAgainst As Long
+        Dim differential As Long
+        
+        ' Récupérer le nombre de buts marqués et encaissés
+        goalsFor = ws.Cells(i, "H").Value
+        goalsAgainst = ws.Cells(i, "I").Value
+        
+        ' Calculer le différentiel de buts
+        differential = goalsFor - goalsAgainst
+        
+        ' Afficher le différentiel de buts dans la colonne J (colonne 10)
+        ws.Cells(i, "J").Value = differential
+    Next i
+End Sub
+
