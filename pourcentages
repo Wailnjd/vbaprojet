@@ -1,0 +1,45 @@
+Sub CalculerPourcentage()
+    Dim ws As Worksheet
+    Dim equipe As String
+    Dim equipeRange As Range
+    Dim victoires As Integer
+    Dim defaites As Integer
+    Dim matchsNuls As Integer
+    Dim totalMatchs As Integer
+    Dim pourcentageVictoires As Double
+    Dim pourcentageDefaites As Double
+    Dim pourcentageNuls As Double
+    
+    ' Définition de la feuille de calcul contenant les données
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    
+    ' Demander à l'utilisateur de spécifier l'équipe
+    equipe = InputBox("Entrez le nom de l'équipe pour laquelle vous souhaitez calculer les pourcentages:")
+    
+    ' Vérifier si l'équipe existe dans les données
+    Set equipeRange = ws.Columns(2).Find(equipe, LookIn:=xlValues, LookAt:=xlWhole)
+    
+    If equipeRange Is Nothing Then
+        MsgBox "L'équipe spécifiée n'a pas été trouvée dans les données.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Obtenir les données de victoires, défaites et matchs nuls pour l'équipe spécifiée
+    victoires = equipeRange.Offset(0, 3).Value
+    defaites = equipeRange.Offset(0, 5).Value
+    matchsNuls = equipeRange.Offset(0, 4).Value
+    
+    ' Calculer le total des matchs
+    totalMatchs = victoires + defaites + matchsNuls
+    
+    ' Calculer les pourcentages
+    pourcentageVictoires = (victoires / totalMatchs) * 100
+    pourcentageDefaites = (defaites / totalMatchs) * 100
+    pourcentageNuls = (matchsNuls / totalMatchs) * 100
+    
+    ' Afficher les résultats
+    MsgBox "Pourcentage de victoires pour " & equipe & ": " & Format(pourcentageVictoires, "0.00") & "%" & vbCrLf & _
+           "Pourcentage de défaites pour " & equipe & ": " & Format(pourcentageDefaites, "0.00") & "%" & vbCrLf & _
+           "Pourcentage de matchs nuls pour " & equipe & ": " & Format(pourcentageNuls, "0.00") & "%", _
+           vbInformation, "Résultats du calcul"
+End Sub
