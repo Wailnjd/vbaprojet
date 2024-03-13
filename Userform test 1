@@ -1,0 +1,46 @@
+
+'Sub qui crée les listes des équipes
+Private Sub UserForm_Initialize()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LeagueTableExport")
+    Dim derniereLigne As Long
+    derniereLigne = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    
+    Dim i As Long
+    For i = 2 To derniereLigne
+        Equipe1.AddItem ws.Cells(i, 2).Value
+        Equipe2.AddItem ws.Cells(i, 2).Value
+    Next i
+    ' Sélectionne la première équipe par défaut pour un interface plus conviviale
+    Equipe1.ListIndex = 0
+    Equipe2.ListIndex = 1
+End Sub
+
+
+' Sub qui permet de supprimer de la liste la première équipe selectionnée si il commence par renseigner la première combobox
+Private Sub Equipe1_Change()
+    ' Actualise la deuxième ComboBox en fonction de la première sélection
+    Dim i As Long
+    Equipe2.Clear ' Efface les éléments actuels de la deuxième ComboBox
+    
+    ' Remplit la deuxième ComboBox en excluant l'équipe sélectionnée dans la première ComboBox
+    For i = 2 To Equipe1.ListCount - 1
+        If Equipe1.List(i) <> Equipe1.Value Then
+            Equipe2.AddItem Equipe1.List(i)
+        End If
+    Next i
+End Sub
+
+' Supprime de la liste la première équipe selectionnée si il commence par renseigner la première combobox
+Private Sub Equipe2_Change()
+    ' Actualise la deuxième ComboBox en fonction de la première sélection
+    Dim i As Long
+    Equipe1.Clear ' Efface les éléments actuels de la deuxième ComboBox
+    
+    ' Remplit la deuxième ComboBox en excluant l'équipe sélectionnée dans la première ComboBox
+    For i = 2 To Equipe2.ListCount - 1
+        If Equipe2.List(i) <> Equipe2.Value Then
+            Equipe1.AddItem Equipe2.List(i)
+        End If
+    Next i
+End Sub
