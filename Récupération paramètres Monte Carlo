@@ -1,0 +1,131 @@
+Sub Main_MonteCarlo()
+    Dim Nom_equipe As String
+    Nom_equipe = InputBox("Entrez le nom de l'équipe")
+    
+    Call TestSheetReplace
+    Call tableau_buts(Nom_equipe)
+    Call tableau_statistiques(Nom_equipe)
+    
+    Worksheets("Sheet1").Visible = False
+    
+End Sub
+
+Sub TestSheetReplace()
+    Dim mySheetName As String
+    mySheetName = "Sheet1"
+    
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    Worksheets(mySheetName).Delete
+    Err.Clear
+    Application.DisplayAlerts = True
+    Worksheets.Add.Name = mySheetName
+End Sub
+
+Sub tableau_buts(Nom_equipe)
+
+' On regarde le nombre de matchs joués par cette équipe pour dimensionner un tableau
+    Dim wsLeague As Worksheet
+    Set wsLeague = Worksheets("LeagueTableExport")
+    
+    Dim a As Double, dimension As Double
+    a = 0
+    While wsLeague.Cells(1 + a, 1).Value <> ""
+        If wsLeague.Cells(1 + a, 2).Value = Nom_equipe Then
+            dimension = wsLeague.Cells(1 + a, 4).Value
+        End If
+        a = a + 1
+    Wend
+    
+    Dim tab1() As Double
+    ReDim tab1(dimension - 1)
+    
+' On récupère dans le tableau le nombre de buts par matchs de l'équipe
+    Dim wsTeamStats As Worksheet
+    Set wsTeamStats = Worksheets("TeamStatsExport")
+    
+    Dim i As Double
+    Dim t As Double
+    t = 0
+    i = 0
+    While wsTeamStats.Cells(1 + i, 1).Value <> ""
+        If wsTeamStats.Cells(1 + i, 1).Value = Nom_equipe Then
+            If wsTeamStats.Cells(1 + i, 4).Value = Nom_equipe Then
+                tab1(t) = wsTeamStats.Cells(1 + i, 5).Value
+            Else
+                tab1(t) = wsTeamStats.Cells(1 + i, 6).Value
+            End If
+            t = t + 1
+        End If
+        i = i + 1
+    Wend
+    
+' On met le tableau dans une feuille de calcul cachée
+    Dim Middlesheet As Worksheet
+    Set Middlesheet = Worksheets("Sheet1")
+    
+    For c = 0 To t - 1
+    Middlesheet.Cells(1 + c, 1) = tab1(c)
+    Next c
+
+' On calcule Espérance et Ecart-type
+    Dim mean_goals As Double, stdev_goals As Double
+    mean_goals = Application.WorksheetFunction.Average(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
+    stdev_goals = Application.WorksheetFunction.StDev_S(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
+    
+    
+End Sub
+
+Sub tableau_statistiques(Nom_equipe)
+    
+' On regarde le nombre de matchs joués par cette équipe pour dimensionner un tableau
+    Dim wsLeague As Worksheet
+    Set wsLeague = Worksheets("LeagueTableExport")
+    
+    Dim a As Double, dimension As Double
+    a = 0
+    While wsLeague.Cells(1 + a, 1).Value <> ""
+        If wsLeague.Cells(1 + a, 2).Value = Nom_equipe Then
+            dimension = wsLeague.Cells(1 + a, 4).Value
+        End If
+        a = a + 1
+    Wend
+    
+    Dim tab1() As Double
+    ReDim tab1(dimension - 1)
+    
+' Boucle qui à chaque itération récupère une statistique dans un tableau pour l'envoyer sur une nouvelle colonne de la feuille cachée
+    Dim wsTeamStats As Worksheet
+    Set wsTeamStats = Worksheets("TeamStatsExport")
+    
+    Dim Middlesheet As Worksheet
+    Set Middlesheet = Worksheets("Sheet1")
+    
+    For col = 9 To 36
+        Dim i As Double, t As Double
+        Dim mean As Double, stdev As Double
+        mean = 0
+        stdev = 0
+        t = 0
+        i = 0
+        While wsTeamStats.Cells(1 + i, 1).Value <> ""
+            If wsTeamStats.Cells(1 + i, 1).Value = Nom_equipe Then
+                tab1(t) = wsTeamStats.Cells(1 + i, col).Value
+                t = t + 1
+            End If
+            i = i + 1
+        Wend
+    
+        For c = 0 To t - 1
+        Middlesheet.Cells(1 + c, col) = tab1(c)
+        Next c
+        
+        mean = Application.WorksheetFunction.Average(Middlesheet.Range(Cells(1, col), Cells(t, col)))
+        stdev = Application.WorksheetFunction.StDev_S(Middlesheet.Range(Cells(1, col), Cells(t, col)))
+        
+        Cells(t + 2, col) = mean
+        Cells(t + 3, col) = stdev
+        
+    Next col
+    
+End Sub
