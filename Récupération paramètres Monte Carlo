@@ -37,8 +37,9 @@ Sub tableau_buts(Nom_equipe)
         a = a + 1
     Wend
     
-    Dim tab1() As Double
+    Dim tab1() As Double, tab2() As Double
     ReDim tab1(dimension - 1)
+    ReDim tab2(dimension - 1)
     
 ' On récupère dans le tableau le nombre de buts par matchs de l'équipe
     Dim wsTeamStats As Worksheet
@@ -52,8 +53,10 @@ Sub tableau_buts(Nom_equipe)
         If wsTeamStats.Cells(1 + i, 1).Value = Nom_equipe Then
             If wsTeamStats.Cells(1 + i, 4).Value = Nom_equipe Then
                 tab1(t) = wsTeamStats.Cells(1 + i, 5).Value
+                tab2(t) = wsTeamStats.Cells(1 + i, 6).Value
             Else
                 tab1(t) = wsTeamStats.Cells(1 + i, 6).Value
+                tab2(t) = wsTeamStats.Cells(1 + i, 5).Value
             End If
             t = t + 1
         End If
@@ -66,14 +69,23 @@ Sub tableau_buts(Nom_equipe)
     
     For c = 0 To t - 1
     Middlesheet.Cells(1 + c, 1) = tab1(c)
+    Middlesheet.Cells(1 + c, 2) = tab2(c)
     Next c
 
 ' On calcule Espérance et Ecart-type
-    Dim mean_goals As Double, stdev_goals As Double
-    mean_goals = Application.WorksheetFunction.Average(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
-    stdev_goals = Application.WorksheetFunction.StDev_S(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
-    
-    
+    Dim mean_home_goals As Double, stdev_home_goals As Double
+    Dim mean_away_goals As Double, stdev_away_goals As Double
+    mean_home_goals = Application.WorksheetFunction.Average(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
+    stdev_home_goals = Application.WorksheetFunction.StDev_S(Middlesheet.Range(Cells(1, 1), Cells(t, 1)))
+    mean_away_goals = Application.WorksheetFunction.Average(Middlesheet.Range(Cells(1, 2), Cells(t, 2)))
+    stdev_away_goals = Application.WorksheetFunction.StDev_S(Middlesheet.Range(Cells(1, 2), Cells(t, 2)))
+
+' On inscrit ces résultats dans des cellules
+        Cells(t + 2, 1) = mean_home_goals
+        Cells(t + 3, 1) = stdev_home_goals
+        Cells(t + 2, 2) = mean_away_goals
+        Cells(t + 3, 2) = stdev_away_goals
+        
 End Sub
 
 Sub tableau_statistiques(Nom_equipe)
