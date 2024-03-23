@@ -141,3 +141,36 @@ Sub tableau_statistiques(Nom_equipe)
     Next col
     
 End Sub
+
+Sub Simulation_Aléatoire()
+
+' Pour chaque catégorie de données, faire tourner une loi normale avec moyenne et écart-type comme paramètres
+    Dim ws As Worksheet
+    Set ws = Worksheets("Sheet1")
+
+' Obtenir les bonnes données sur cette feuille
+    t = 0
+    While ws.Cells(1 + t, 1) <> ""
+        t = t + 1
+    Wend
+
+' Boucle qui génère un nombre aléatoire
+    For col = 1 To 2
+        mean = ws.Cells(t + 2, col)
+        stdev = ws.Cells(t + 3, col)
+        
+        norm = Application.WorksheetFunction.Norm_Inv(Rnd(), mean, stdev)
+        norm_rounded = Round(norm) 'Permet d'arrondir à l'entier le plus proche
+        ws.Cells(t + 5, col) = norm_rounded
+    Next col
+    
+    For col = 9 To 36
+        mean = ws.Cells(t + 2, col)
+        stdev = ws.Cells(t + 3, col)
+        
+        norm = Application.WorksheetFunction.Norm_Inv(Rnd(), mean, stdev)
+        norm_rounded = Round(norm) 'Permet d'arrondir à l'entier le plus proche
+        ws.Cells(t + 5, col) = norm_rounded
+    Next col
+    
+End Sub
