@@ -1,0 +1,258 @@
+' Cette sub a pour but, en utilisant la loi de Poisson et les Expected Goals, de fournir une estimation de la probabilit_ du nombre de buts marqu_s par une _quipe en fonction de son pourcentage de victoire.
+
+Sub CREAATTDEF()
+    Dim ws As Worksheet
+    Dim LeagueTableSheet As Worksheet
+    
+    ' Cr_er une nouvelle feuille de calcul et la nommer "ATTDEFF"
+    Set ws = Sheets.Add
+    ws.Name = "ATTDEFF"
+    
+    ' R_f_rencer la feuille "LeagueTableExport"
+    Set LeagueTableSheet = ThisWorkbook.Sheets("LeagueTableExport")
+    
+    ' Copier les donn_es de la colonne B de "LeagueTableExport" vers la colonne A de "ATTDEFF"
+    LeagueTableSheet.Range("B1:B19").Copy Destination:=ws.Range("A1")
+    
+    ' D_finir le nom "TEAM" pour la plage de cellules de la colonne A de "ATTDEFF"
+    ActiveWorkbook.Names.Add Name:="TEAM", RefersToR1C1:="=ATTDEFF!R2C1:R19C1"
+    
+    ' Calculer la moyenne des valeurs dans la colonne B de "ATTDEFF" et la nommer "Moyennebuts"
+    ws.Range("B21").Value = "Moyennebuts"
+    ws.Range("C21").FormulaR1C1 = "=AVERAGE(ATT)"
+    ActiveWorkbook.Names.Add Name:="MOYBUTS", RefersToR1C1:="=ATTDEFF!R21C3"
+    
+    ' D_finir les noms pour les plages de cellules de la colonne B et C de "ATTDEFF"
+    ws.Range("B1").Value = "ATT"
+    ws.Range("B2:B19").FormulaR1C1 = "=LeagueTableExport!RC[6]/LeagueTableExport!RC[2]"
+    ActiveWorkbook.Names.Add Name:="ATT", RefersToR1C1:="=ATTDEFF!R2C2:R19C2"
+    
+    ws.Range("C1").Value = "DEF"
+    ws.Range("C2:C19").FormulaR1C1 = "=LeagueTableExport!RC[6]/LeagueTableExport!RC[1]"
+    ActiveWorkbook.Names.Add Name:="DEF", RefersToR1C1:="=ATTDEFF!R2C3:R19C3"
+    
+    ' Cacher la feuille de calcul "ATTDEFF"
+    ws.Visible = xlSheetHidden
+End Sub
+
+' On va calculer les Xgoals
+Sub XGOALS()
+    Range("G2").Select
+    ActiveCell.FormulaR1C1 = "XGoals"
+    Range("G3").Select
+    ActiveCell.FormulaR1C1 = _
+        "=XLOOKUP(R[1]C[-5],TEAM,ATT)*XLOOKUP(R[1]C[-3],TEAM,DEF)*MOYBUTS"
+   Range("G4").Select
+    ActiveCell.FormulaR1C1 = _
+        "=XLOOKUP(RC[-3],TEAM,ATT)*XLOOKUP(RC[-5],TEAM,DEF)*MOYBUTS"
+    
+ 'On va Calculer la probabilt_ de chaque nombre de but inscrit par _quipe
+    
+    Range("B8").Select
+    ActiveCell.FormulaR1C1 = "=R[-4]C &"" Goals"""
+    Range("B9").Select
+    Columns("B:B").ColumnWidth = 18.5
+    Range("C8").Select
+    ActiveCell.FormulaR1C1 = "=R[-4]C[1] &"" Goals"""
+   Dim i As Integer
+For i = 0 To 10
+    Range("A" & 9 + i).Value = i
+Next i
+   
+    Range("B9").Select
+    ActiveCell.FormulaR1C1 = "=POISSON.DIST(RC[-1],R3C7,FALSE)"
+    Range("B9").Select
+    Selection.AutoFill Destination:=Range("B9:B19"), Type:=xlFillDefault
+    Range("B9:B19").Select
+    Range("C9").Select
+    ActiveCell.FormulaR1C1 = "=POISSON.DIST(RC[-2],R4C7,FALSE)"
+    Range("C9").Select
+    Selection.AutoFill Destination:=Range("C9:C19"), Type:=xlFillDefault
+    Range("C9:C19").Select
+    Range("B9:C19").Select
+    Selection.Style = "Percent"
+    Selection.NumberFormat = "0.0%"
+    ActiveCell.FormulaR1C1 = "=POISSON.DIST(RC[-1],R3C7,FALSE)"
+    Range("G6").Select
+
+'On va calculer le % de victoire associ_ au nombre de but marqu_ pour chaque equipe
+
+    ' Formule pour la colonne E
+    Range("E8").FormulaR1C1 = "=R[-4]C[-3] &"" Win %"""
+    Range("E9").FormulaR1C1 = "=R[1]C[-3]*SUM(R9C3,RC[-2])"
+    Range("E9").AutoFill Destination:=Range("E9:E19"), Type:=xlFillDefault
+    
+    ' Formule pour la colonne F
+    Range("F8").FormulaR1C1 = "=R[-4]C[-2] &"" Win %"""
+    Range("F9").FormulaR1C1 = "=R[1]C[-3]*SUM(R9C2,RC[-4])"
+    Range("F9").AutoFill Destination:=Range("F9:F19"), Type:=xlFillDefault
+
+'On va en d_duire une probabilit_ % d'issue du match
+
+    ' Ins_rer le titre dans la cellule H2
+    Range("H2").Value = "Result prediction in %"
+    
+    ' Ajuster la largeur de la colonne H
+    Columns("H:H").ColumnWidth = 17.33
+    
+    ' Calculer la somme des valeurs dans la colonne F et formater la cellule H3
+    Range("H3").FormulaR1C1 = "=SUM(R[6]C[-3]:R[16]C[-3])"
+    Range("H3").NumberFormat = "0.000%"
+    
+    ' Calculer la somme des valeurs dans la colonne G et ins_rer le titre dans les cellules G5 et H5
+    Range("H4").FormulaR1C1 = "=SUM(R[5]C[-2]:R[15]C[-2])"
+    Range("G5").Value = "Match nul"
+    Range("H5").FormulaR1C1 = "=100%-(R[-2]C+R[-1]C)"
+    
+    ' Formater la plage de cellules E9:E19
+    Range("E9:E19").NumberFormat = "0.00%"
+
+' On va ensuite donner une pr_diction en % du score exacte
+
+    Range("B23:K24").Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Selection.Merge
+    ActiveCell.FormulaR1C1 = "Score prediction"
+    Range("B27").Select
+    ActiveWindow.SmallScroll Down:=12
+    Range("B23:K24").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark2
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    Range("C27").Select
+    ActiveCell.FormulaR1C1 = "0"
+    Range("D27").Select
+    ActiveCell.FormulaR1C1 = "1"
+    Range("E27").Select
+    ActiveCell.FormulaR1C1 = "2"
+    Range("F27").Select
+    ActiveCell.FormulaR1C1 = "3"
+    Range("G27").Select
+    ActiveCell.FormulaR1C1 = "4"
+    Range("H27").Select
+    ActiveCell.FormulaR1C1 = "5"
+    Range("I27").Select
+    ActiveCell.FormulaR1C1 = "6"
+    Range("J27").Select
+    ActiveCell.FormulaR1C1 = "7"
+    Range("K27").Select
+    ActiveCell.FormulaR1C1 = "8"
+    Range("L27").Select
+    ActiveCell.FormulaR1C1 = "9"
+    Range("M27").Select
+    ActiveCell.FormulaR1C1 = "10"
+    Range("B28").Select
+    ActiveCell.FormulaR1C1 = "0"
+    Range("B29").Select
+    ActiveCell.FormulaR1C1 = "1"
+    Range("B30").Select
+    ActiveCell.FormulaR1C1 = "2"
+    Range("B31").Select
+    ActiveCell.FormulaR1C1 = "3"
+    Range("B32").Select
+    ActiveCell.FormulaR1C1 = "4"
+    Range("B33").Select
+    ActiveCell.FormulaR1C1 = "5"
+    Range("B34").Select
+    ActiveCell.FormulaR1C1 = "6"
+    Range("B35").Select
+    ActiveCell.FormulaR1C1 = "7"
+    Range("B36").Select
+    ActiveCell.FormulaR1C1 = "8"
+    Range("B37").Select
+    ActiveCell.FormulaR1C1 = "9"
+    Range("B38").Select
+    ActiveCell.FormulaR1C1 = "10"
+    Range("A32").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=R[-28]C[1]"
+    Range("G26").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=R[-22]C[-3]"
+    Range("G27").Select
+    ActiveWindow.SmallScroll Down:=18
+    Range("C28").Select
+    ActiveCell.FormulaR1C1 = _
+        "=XLOOKUP(RC2,R9C1:R19C1,R9C2:R19C2)*XLOOKUP(R27C,R9C1:R19C1,R9C3:R19C3)"
+    Range("C28").Select
+    Selection.AutoFill Destination:=Range("C28:C38"), Type:=xlFillDefault
+    Range("C28:C38").Select
+    Selection.AutoFill Destination:=Range("C28:M38"), Type:=xlFillDefault
+    Range("C28:M38").Select
+    Selection.Style = "Percent"
+    Selection.FormatConditions.AddColorScale ColorScaleType:=3
+    Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
+    Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
+        xlConditionValueLowestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+        .Color = 7039480
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Type = _
+        xlConditionValuePercentile
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+        .Color = 8711167
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).ColorScaleCriteria(3).Type = _
+        xlConditionValueHighestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
+        .Color = 8109667
+        .TintAndShade = 0
+    End With
+    
+' On va convertire la % en cote
+
+    Range("I2").Select
+    ActiveCell.FormulaR1C1 = "Odds"
+    Range("I3").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=1/RC[-1]"
+    Range("I3").Select
+    Selection.AutoFill Destination:=Range("I3:I5"), Type:=xlFillDefault
+    Range("I3:I5").Select
+    Selection.Font.Bold = False
+    With Selection.Font
+        .Name = "Aptos Narrow"
+        .Size = 20
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    Range("I2").Select
+    With Selection.Font
+        .Name = "Aptos Narrow"
+        .Size = 20
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    Range("K17").Select
+End Sub
